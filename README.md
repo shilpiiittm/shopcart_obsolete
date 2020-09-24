@@ -1,27 +1,48 @@
 # Shopcart
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 10.0.7.
+## Install Bootstrap
+Step 1:
+```
+npm i -- save bootstrap
+```
+Step 2:
+In style.css Add following line
+```
+@import "~bootstrap/dist/css/bootstrap.css";
+```
+Step 3:
+Open angular.json
+in styles array add
+```
+"node_modules/bootstrap/dist/css/bootstrap.min.css",
+```
 
-## Development server
+## Install Firebase
+Step 1:
+Create account on firebase https://firebase.google.com/
+and copy to environment.ts and environment.prod.ts
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Step 2:
+Copy these in app.module.ts
+```
+import { environment } from './../environments/environment';
+import { AngularFireModule } from 'angularfire2'
+import { AngularFireDatabaseModule } from 'angularfire2/database'
+import { AngularFireAuthModule } from 'angularfire2/auth'
 
-## Code scaffolding
+...
+  imports: [
+    ...
+    AngularFireModule.initializeApp(environment.firebase),
+    AngularFireDatabaseModule,
+    AngularFireAuthModule
+  ],
+...  
+```
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Step 3:
+Firebase provides database, authentication (login facilities), storage (images, videos), messaging (SMS)
 
-## Build
-
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
-
-## Running unit tests
-
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
-
-## Running end-to-end tests
-
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
-
-## Further help
-
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+```
+npm install firebase
+```

@@ -1,5 +1,17 @@
 # Shopcart
 
+## Push/Pull to/from GitHub
+1. Push
+
+VSCode > Left Menu > Go to Tree Icon (Scissors)
+Click + to stage files
+Add commit message (any sentence: useful)
+in terminal write
+```
+git push -u origin master
+```
+
+
 ## Install Bootstrap
 Step 1:
 ```

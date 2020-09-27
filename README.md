@@ -97,3 +97,9 @@ RouterModule.forRoot([
   {path:'admin/products',component:AdminProductsComponent},
   {path:'admin/orders',component;AdminOrdersComponent},
 ])]
+
+
+Step 6
+````
+add router outlet in app comp. html
+<router-outlet></router-outlet>

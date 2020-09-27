@@ -57,4 +57,12 @@ Firebase provides database, authentication (login facilities), storage (images, 
 
 ```
 npm install firebase
+
+
 ```
+
+```step 3
+go to get bootstrap and choose from examples 
+now copy code from there 
+paste on app component html
+````

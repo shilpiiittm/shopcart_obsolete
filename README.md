@@ -62,7 +62,36 @@ npm install firebase
 ```
 
 ```step 3
+face of webpage
 go to get bootstrap and choose from examples 
 now copy code from there 
 paste on app component html
 ````
+``step 3.5
+`divide appcomp.html content into navbar and mains (make ng g c bs-navbar)
+```
+step 4
+```
+make routes
+```ng g c home
+ng g c products
+ng g c shopping-cart
+ng g c check-out
+ng g c order-success
+ng g c my-orders
+ng  g c admin/admin-products
+ng g c admin/admin-orders
+ng g c login
+````
+STEP 5
+```in app module import { RouterModule} from'@angular/router'
+
+now in imports[ AngularFireAuthModule,
+RouterModule.forRoot([
+  {path:'',component:HomeComponent},
+  {path:'products',component:ProductsComponent},
+  {path:'shopping-cart',component:ShoppingCartComponent},
+  {path:'check-out',component:CheckOutComponent},
+  {path:'order-success',component:OrderSuccessComponent},
+  {path:'login',component:LoginComponent,}
+])]

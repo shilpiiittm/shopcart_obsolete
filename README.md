@@ -93,5 +93,7 @@ RouterModule.forRoot([
   {path:'shopping-cart',component:ShoppingCartComponent},
   {path:'check-out',component:CheckOutComponent},
   {path:'order-success',component:OrderSuccessComponent},
-  {path:'login',component:LoginComponent,}
+  {path:'login',component:LoginComponent,},
+  {path:'admin/products',component:AdminProductsComponent},
+  {path:'admin/orders',component;AdminOrdersComponent},
 ])]

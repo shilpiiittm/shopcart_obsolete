@@ -34,7 +34,7 @@ Step 1:
 Create account on firebase https://firebase.google.com/
 and copy to environment.ts and environment.prod.ts
 
-Step 2:
+## Step 2:
 Copy these in app.module.ts
 ```
 import { environment } from './../environments/environment';
@@ -52,28 +52,28 @@ import { AngularFireAuthModule } from 'angularfire2/auth'
 ...  
 ```
 
-Step 3:
+## Step 3:
 Firebase provides database, authentication (login facilities), storage (images, videos), messaging (SMS)
 
 ```
 npm install firebase
-
-
 ```
 
-```step 3
+## Step 3
+
 face of webpage
 go to get bootstrap and choose from examples 
 now copy code from there 
 paste on app component html
-````
-``step 3.5
-`divide appcomp.html content into navbar and mains (make ng g c bs-navbar)
+
+## step 3.5
+divide appcomp.html content into navbar and mains (make ng g c bs-navbar)
+
+
+## step 4: make routes
+
 ```
-step 4
-```
-make routes
-```ng g c home
+ng g c home
 ng g c products
 ng g c shopping-cart
 ng g c check-out
@@ -83,8 +83,12 @@ ng  g c admin/admin-products
 ng g c admin/admin-orders
 ng g c login
 ````
-STEP 5
-```in app module import { RouterModule} from'@angular/router'
+
+## STEP 5
+in app module
+
+```js 
+import { RouterModule} from'@angular/router'
 
 now in imports[ AngularFireAuthModule,
 RouterModule.forRoot([
@@ -97,9 +101,10 @@ RouterModule.forRoot([
   {path:'admin/products',component:AdminProductsComponent},
   {path:'admin/orders',component;AdminOrdersComponent},
 ])]
+```
 
-
-Step 6
-````
+## Step 6
 add router outlet in app comp. html
+```html
 <router-outlet></router-outlet>
+```

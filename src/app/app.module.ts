@@ -7,6 +7,7 @@ import { AngularFireModule } from 'angularfire2';
 import { AngularFireDatabaseModule } from 'angularfire2/database';
 import { AngularFireAuthModule } from 'angularfire2/auth';
 import { RouterModule } from '@angular/router';
+import  {NgbModule} from '@ng-bootstrap/ng-bootstrap';
 
 import { AppComponent } from './app.component';
 import { BsNavbarComponent } from './bs-navbar/bs-navbar.component';
@@ -38,6 +39,7 @@ import { AdminOrdersComponent } from './admin/admin-orders/admin-orders.componen
     AngularFireModule.initializeApp(environment.firebase),
     AngularFireDatabaseModule,
     AngularFireAuthModule,
+    NgbModule,
     RouterModule.forRoot([
     {path:'',component:HomeComponent},
     {path:'products',component:ProductsComponent},
@@ -47,6 +49,7 @@ import { AdminOrdersComponent } from './admin/admin-orders/admin-orders.componen
     {path:'login',component:LoginComponent},
     {path:'admin/products',component:AdminProductsComponent},
     {path:'admin/orders',component:AdminOrdersComponent},
+    {path:'my/orders', component:MyOrdersComponent}
     ])
   ],
   providers: [],

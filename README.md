@@ -181,3 +181,76 @@ after its done
 $firebase deploy
 
 now we have hosting url which we can copy and open in browser
+
+
+## Project Authentication and Authorization 
+
+## Step 9 Implementing Google login
+
+open firebase in console go to project and click on authentication 
+here there is users, signin method and templates 
+click sign-in method -> enable google and save this setting
+
+## step 9.5
+in navbar html add
+
+            <li class="nav-item">
+                <a class="nav-link" routerLink="/login">Login</a>
+            </li>
+
+now open login html and add button
+<button
+(click)="login()"
+class="btn btn-primary">Login with Google</button>
+
+now open login component and add
+import { Component, OnInit } from '@angular/core';
+import { AngularFireAuth } from 'angularfire2/auth';
+import * as firebase from 'firebase';
+
+@Component({
+  selector: 'app-login',
+  templateUrl: './login.component.html',
+  styleUrls: ['./login.component.css']
+})
+export class LoginComponent {
+
+  constructor(private afAuth: AngularFireAuth) {
+
+   }
+
+  login() {
+     this.afAuth.auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider())
+  }
+}
+
+
+now we can click on login with google 
+and can check in firebase -> in authentication click on users and we can see our gmail id  and UID
+
+
+## step 10 Implement the logout
+open navbar html and do changes
+ <a class="dropdown-item" (click)="logout()">Log Out</a>
+
+ open navbar component ts and add these things
+ import { AngularFireAuth } from 'angularfire2/auth';
+import { Component, OnInit } from '@angular/core';
+
+@Component({
+  selector: 'bs-navbar',
+  templateUrl: './bs-navbar.component.html',
+  styleUrls: ['./bs-navbar.component.css']
+})
+export class BsNavbarComponent {
+
+  constructor(private afAuth: AngularFireAuth) {
+    afAuth.authState.subscribe(x=> console.log(x));   ///this line for console so that we can now if 
+   }                                                     logout happend///
+
+  logout() {
+    this.afAuth.auth.signOut();
+  }
+
+}
+

@@ -303,3 +303,107 @@ export class BsNavbarComponent {
             </li>
         </ng-template>
             <li ngbDropdown *ngIf="user$ | async as user; else anonymousUser" class="nav-item dropdown">   
+
+
+
+
+## Step 12 Extracting a service
+we are doing it so that it is testable and later on if we use other service istead of firebase than project will work so here we are delegating thinngs ///distributing responsibilities properly ///to auth  service (we are using firebase for authentication) so we are providing authentication in a seperate service
+
+Now in TERMINAL ng g s auth
+
+```
+now in app module in providers add//register it as [AuthService]
+
+now open auth service ts
+in constructor inject
+```
+constructor(private afAuth:AngularFireAuth) {
+```
+  now add
+  login(){}
+
+  logout(){}   
+
+  and from login component cut login template and paste it here in  auth serveive ///logout template is in navbar component we will do it after login///
+  ```
+  login() {
+    this.afAuth.auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+  }
+
+
+  logout(){
+    this.afAuth.auth.signOut();
+  }
+  ```
+
+  changes in login component
+  import { AuthService } from './../auth.service';
+import { Component, OnInit } from '@angular/core';
+
+
+  ```
+  export class LoginComponent {
+
+  constructor(private auth: AuthService) {
+
+   }
+
+  login() {
+     this.auth.login();
+  }
+}
+```
+
+in auth service add
+```
+import * as firebase from 'firebase';
+```
+
+
+now cut logout template from navbar component and add it in authservice
+other changes in navbar component
+```
+import { AuthService } from './../auth.service';
+import { Component, OnInit } from '@angular/core';
+
+
+
+@Component({
+  selector: 'bs-navbar',
+  templateUrl: './bs-navbar.component.html',
+  styleUrls: ['./bs-navbar.component.css']
+})
+export class BsNavbarComponent {
+
+  constructor(public auth: AuthService) {
+    
+   }
+
+  logout() {
+    this.auth.logout();
+  }
+
+}
+```
+
+in auth service in constructor we are bringing temlate from constructor of navbar component
+ this.user$ = afAuth.authState;
+
+in navbar component delete observable and in constuctor changes
+constructor(public auth: AuthService) {
+
+now in navbar html add 
+```
+<li ngbDropdown *ngIf="auth.user$ | async as user; e
+```
+
+now we nee to change from private to piblic so in navbar component we will change
+ constructor(public auth: AuthService)
+ now changes in import over here
+ import { AuthService } from './../auth.service';
+
+import { Component, OnInit } from '@angular/core';
+
+
+

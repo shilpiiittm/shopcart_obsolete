@@ -1,3 +1,5 @@
+import { AuthService } from './auth.service';
+import { Observable } from 'rxjs';
 import { LoginComponent } from './login/login.component';
 
 import { environment } from './../environments/environment';
@@ -19,6 +21,7 @@ import { OrderSuccessComponent } from './order-success/order-success.component';
 import { MyOrdersComponent } from './my-orders/my-orders.component';
 import { AdminProductsComponent } from './admin/admin-products/admin-products.component';
 import { AdminOrdersComponent } from './admin/admin-orders/admin-orders.component';
+
 
 @NgModule({
   declarations: [
@@ -52,7 +55,7 @@ import { AdminOrdersComponent } from './admin/admin-orders/admin-orders.componen
     {path:'my/orders', component:MyOrdersComponent}
     ])
   ],
-  providers: [],
+  providers: [ AuthService ],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

@@ -254,3 +254,52 @@ export class BsNavbarComponent {
 
 }
 
+## step 10.5 how to display user name 
+
+open navbar ts and add 
+
+```
+import * as firebase from 'firebase';
+```
+```
+export class BsNavbarComponent {
+  user: firebase.User;
+
+  constructor(private afAuth: AngularFireAuth) {
+    afAuth.authState.subscribe(user => this.user=user);
+   }
+```
+
+now in navbar html do necessary changes
+
+<li  *ngIf="!user" class="nav-item">
+                <a class="nav-link" routerLink="/login">Login</a>
+            </li>
+            <li ngbDropdown *ngIf="user" class="nav-item dropdown">
+                <a ngbDropdownToggle class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true"
+                    aria-expanded="false">{{ user.displayName}}</a>   ///string ///
+                <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="dropdown01">
+                    <a class="dropdown-item" routerLink="/my/orders">My Orders</a>
+                    <a class="dropdown-item" routerLink="/admin/orders">Manage Orders</a>
+
+
+## Step 11 using async pipe 
+(so that every time  data gets destroys and its not overload )
+open navbar component 
+```
+import { Observable } from 'rxjs';
+```
+export class BsNavbarComponent {
+  user$: Observable<firebase.User>;
+
+  constructor(private afAuth: AngularFireAuth) {
+    this.user$ = afAuth.authState;
+
+
+ open navbar html
+  <ng-template #anonymousUser>
+            <li  class="nav-item">     ///remove  *ngIf="!user$" as we are using else ///
+                <a class="nav-link" routerLink="/login">Login</a>
+            </li>
+        </ng-template>
+            <li ngbDropdown *ngIf="user$ | async as user; else anonymousUser" class="nav-item dropdown">   

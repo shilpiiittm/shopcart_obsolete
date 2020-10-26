@@ -261,6 +261,7 @@ open navbar ts and add
 ```
 import * as firebase from 'firebase';
 ```
+
 ```
 export class BsNavbarComponent {
   user: firebase.User;
@@ -272,6 +273,7 @@ export class BsNavbarComponent {
 
 now in navbar html do necessary changes
 
+```
 <li  *ngIf="!user" class="nav-item">
                 <a class="nav-link" routerLink="/login">Login</a>
             </li>
@@ -281,14 +283,15 @@ now in navbar html do necessary changes
                 <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="dropdown01">
                     <a class="dropdown-item" routerLink="/my/orders">My Orders</a>
                     <a class="dropdown-item" routerLink="/admin/orders">Manage Orders</a>
-
+```
 
 ## Step 11 using async pipe 
-(so that every time  data gets destroys and its not overload )
+(so that every time  data gets destroyed and its not overload )
 open navbar component 
+
 ```
 import { Observable } from 'rxjs';
-```
+
 export class BsNavbarComponent {
   user$: Observable<firebase.User>;
 
@@ -303,47 +306,54 @@ export class BsNavbarComponent {
             </li>
         </ng-template>
             <li ngbDropdown *ngIf="user$ | async as user; else anonymousUser" class="nav-item dropdown">   
-
+```
 
 
 
 ## Step 12 Extracting a service
-we are doing it so that it is testable and later on if we use other service istead of firebase than project will work so here we are delegating thinngs ///distributing responsibilities properly ///to auth  service (we are using firebase for authentication) so we are providing authentication in a seperate service
+we are doing it so that it is testable and later on if we use other service istead of firebase than project will work so here we are delegating things ///distributing responsibilities properly ///to auth  service (we are using firebase for authentication) so we are providing authentication in a seperate service
 
 Now in TERMINAL ng g s auth
 
 ```
 now in app module in providers add//register it as [AuthService]
+```
 
 now open auth service ts
 in constructor inject
+
 ```
-constructor(private afAuth:AngularFireAuth) {
-```
+constructor(private afAuth:AngularFireAuth) { }
+
   now add
-  login(){}
+  login(){
 
-  logout(){}   
+  }
 
-  and from login component cut login template and paste it here in  auth serveive ///logout template is in navbar component we will do it after login///
-  ```
+  logout(){
+
+  }   
+```
+and from login component cut login template and paste it here in  auth serveive ///logout template is in navbar component we will do it after login///
+
+```
   login() {
     this.afAuth.auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
   }
 
-
   logout(){
     this.afAuth.auth.signOut();
   }
-  ```
+```
 
-  changes in login component
-  import { AuthService } from './../auth.service';
+changes in login component
+
+```
+import { AuthService } from './../auth.service';
 import { Component, OnInit } from '@angular/core';
 
 
-  ```
-  export class LoginComponent {
+export class LoginComponent {
 
   constructor(private auth: AuthService) {
 
@@ -367,8 +377,6 @@ other changes in navbar component
 import { AuthService } from './../auth.service';
 import { Component, OnInit } from '@angular/core';
 
-
-
 @Component({
   selector: 'bs-navbar',
   templateUrl: './bs-navbar.component.html',
@@ -388,22 +396,199 @@ export class BsNavbarComponent {
 ```
 
 in auth service in constructor we are bringing temlate from constructor of navbar component
+
+```
  this.user$ = afAuth.authState;
 
-in navbar component delete observable and in constuctor changes
+ otherchange in authservice 
+ export class AuthService{
+   user$: Observable<firebase.User>;
+   constructor
+ }
+```
+
+in navbar component delete observable(the whole line) and in constuctor changes
 constructor(public auth: AuthService) {
 
 now in navbar html add 
-```
+```html
 <li ngbDropdown *ngIf="auth.user$ | async as user; e
 ```
 
 now we nee to change from private to piblic so in navbar component we will change
  constructor(public auth: AuthService)
  now changes in import over here
- import { AuthService } from './../auth.service';
+
+ ```js
+import { AuthService } from './../auth.service';
 
 import { Component, OnInit } from '@angular/core';
+```
+
+except these two delete others
+
+# Step 13 Protecting Routes
+some routes should be accessible to anonymous users and some not so in app module
+in path for user to access checkout they shouls log in first -to protect this route 
+
+in terminal open
+`ng g s auth-guard`
+now in app module register it as provider
+[AuthGuardService]
+use fn and f2 to rename it as [AuthGuard] as its more convenient
+now in auth guard service implement canActivate
+
+```js
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { CanActivate } from '@angular/router';
+
+import { map } from 'rxjs/operators';
+
+
+@Injectable()
+export class AdminAuthGuard implements CanActivate {
+
+  constructor(private auth: AuthService, private router: Router) { }
+
+  canActivate() {
+    return this.auth.User$
+    .pipe(map(user => {
+      if (user) return true;
+      
+      this.router.navigate(['/login']);
+      return false;
+      });
+  }
+
+}
+```
+now in app module in path checkout component
+```
+    {path:'check-out',component:CheckOutComponent, canActivate: [AuthGuard]},`
+       {path:'order-success',component:OrderSuccessComponent,canActivate: [AuthGuard]} ,
+    {path:'my/orders', component:MyOrdersComponent, canActivate: [AuthGuard]},
+    
+    {path:'admin/products',component:AdminProductsComponent, canActivate: [AuthGuard]},
+    {path:'admin/orders',component:AdminOrdersComponent,canActivate: [AuthGuard ]},
+```    
+ now put these routes properly first anonymous users then login users and then admin
+
+ # Step 14 Redirect after login
+
+ after login the user shoul be directed to home page so -we will take two parameters here router and
+ state:RouterStateSnapshot
+```
+import { map } from 'rxjs/operators';
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { CanActivate, RouterStateSnapshot} from '@angular/router';
+import { Router }  from '@angular/router';
+import {Observble,of} from 'rxjs';
+
+
+@Injectable()
+export class AuthGuard implements CanActivate{
+
+  constructor(private auth: AuthService, private router: Router) { }
+   
+
+  canActivate(route, state: RouterStateSnapshot) {
+    return this.auth.user$.pipe(map(user=>{
+      if(user) return true;
+
+      this.router.navigate(['/login'], { queryParams: { returnUrl: state.url }});
+      return false;
+    }));
+  }
+}
+``` 
+now in auth serveice
+```
+mport { UserService } from './user.service';
+import { Observable, of } from 'rxjs';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { Injectable } from '@angular/core';
+import * as firebase from 'firebase';
+import { ActivatedRoute } from '@angular/router';
+import { AppUser } from './models/app-user';
+import { switchMap } from 'rxjs/operators';
+
+@Injectable()
+export class AuthService {
+  user$: Observable<firebase.User>;
+
+  constructor(
+    //private userService: UserService,
+    private afAuth: AngularFireAuth, 
+    private route: ActivatedRoute) { 
+    this.user$ = afAuth.authState;    
+  }
+
+  login() {
+    let returnUrl = this.route.snapshot.queryParamMap.get('returnUrl') || '/';
+    localStorage.setItem('returnUrl', returnUrl);
+
+    this.afAuth.auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
+  }
+
+  // tslint:disable-next-line:typedef
+  logout() {
+    this.afAuth.auth.signOut();
+  }
+
+  //get appUser$(): Observable<AppUser> {
+    //console.log('[auth-service]');
+
+    // @ts-ignore
+    //return this.user$.pipe(switchMap((user) => { -->
+      //console.log('--->', user);
+      //if (user) {
+        //return this.userService.get(user.uid);
+      //}
+      //return of(null);
+    //}));
+  //}
+
+}
+```
+now for redirecting the user ..... open app component
+```
+import { Router } from '@angular/router';
+import { AuthService } from './auth.service';
+import { Component } from '@angular/core';
+
+
+@Component({
+  selector: 'app-root',
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
+
+})
+export class AppComponent {
+  constructor ( private auth: AuthService, router: Router){
+    auth.user$.subscribe(user=>{
+      if(user){
+        
+        let returnUrl= localStorage.getItem('returnUrl');
+        router.navigateByUrl(returnUrl);
+      }
+
+    });
+  }
+}
+```
+# Step 15 Authorization - storing users in firebase
+after authentication we need authorization and diff. roles like manage prodducts page only accessible to admin
+
+in firebase we need to store our users in order to have diff. roles so open firebase and in database-
+whenever working with firebase we should use service
+
+
+
+
+
 
 
 

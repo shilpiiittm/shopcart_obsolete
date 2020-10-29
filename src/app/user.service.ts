@@ -22,3 +22,4 @@ export class UserService {
     return this.db.object('/user/' + uid);
   }
 }
+

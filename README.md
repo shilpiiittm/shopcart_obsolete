@@ -583,7 +583,243 @@ export class AppComponent {
 after authentication we need authorization and diff. roles like manage prodducts page only accessible to admin
 
 in firebase we need to store our users in order to have diff. roles so open firebase and in database-
-whenever working with firebase we should use service
+whenever working with firebase we should use service to keep user objects in it so open terminal
+```
+ng g s user
+```
+
+now open app module and register this service 
+in prividers [AuthGuard, UserService],
+
+now open user service
+```
+import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from "angularfire2/database";
+import * as firebase from 'firebase'; 
+
+
+@Injectable()
+export class UserService {
+
+  constructor(private db: AngularFireDatabase) { }
+
+  save(user: firebase.User) {
+    this.db.object('/users/' + user.uid).update({
+      name:  user.displayName,
+      email: user.email
+      
+    });
+  }
+}
+```
+now in app component we need to inject private userService: UserService
+```
+import { UserService } from './user.service';
+
+export class AppComponent {
+  constructor(private userService:UserService, private auth: AuthService, router: Router){
+    auth.user$.subscribe(user=>{
+      if(user){
+        userService.save(user);
+```
+now in firebase we can see in database (realtime)- here we can also add more roles and complications 
+```
+shopcart-7f4c4
+users
+HcdjrbyisFWjswPqbjuQ7qQdUly2
+email: "shilpiiittm@gmail.com"
+isAdmin: true
+name:  "Shilpi Srivastava" 
+```
+# Step 15 Defining Admins
+In firebase -here we can add more roles like store manager (seperate dash board when 10s of 1000s of users)if have more roles then better to work with operations
+
+# Step 15.5 protecting the admin routes
+so that only admin can access manage order and manage products page ...now in app module we have done this guarding of pages with authguard so now open terminal
+```
+ng g s admin-auth-guard
+```
+now register it in app module with provider as [AdminAuthGuard ]...it will show as AdminAuthGuardService change it with fn and f2
+now open admin-auth-guard
+```
+@Injectable()
+export class AdminAuthGuard implements CanActivate {
+  constructor() {}
+
+  canActivate() {
+
+  }
+```
+in user service
+```
+save(user: firebase.User) {
+    this.db.object('/users/' + user.uid).update({
+      name:  user.displayName,
+      email: user.email,
+      
+    });
+  }
+
+
+  get(uid: string): {
+    return this.db.object('/user/' + uid);
+  }
+}
+```
+in app make a folder models -> here we will define our models 
+in models make a file -> app-users.ts
+now in app-users.ts
+```
+
+export interface AppUser { 
+  name: string;
+  email: string; 
+  isAdmin: boolean;
+}
+```
+now again open user service in get we are making changes
+```
+save(user: firebase.User) {
+    this.db.object('/users/' + user.uid).update({
+      name:  user.displayName,
+      email: user.email,
+      
+    });
+  }
+
+
+  get(uid: string): AngularFireObject<AppUser>{
+    return this.db.object('/user/' + uid);
+  }
+}
+```
+in imports of user service add
+
+import { AppUser } from './models/app-user';
+import { Injectable } from '@angular/core';
+import { AngularFireDatabase } from "angularfire2/database";
+import * as firebase from 'firebase'; 
+import {AngularFireObject} from 'angularfire2/database'
+
+now open admin-auth-guard.service
+```
+import { Observable } from 'rxjs';
+import { UserService } from './user.service';
+import { AuthService } from './auth.service';
+import { Injectable } from '@angular/core';
+import { CanActivate } from '@angular/router';
+
+import { map, switchMap } from 'rxjs/operators';
+
+
+@Injectable()
+export class AdminAuthGuard implements CanActivate {
+
+  constructor(private auth: AuthService, private userService: UserService) { }
+
+  canActivate(): Observable<boolean> {
+   // return this.auth.appUser$
+   return this.auth.user$
+   .pipe(switchMap(user => this.userService.get(user.uid).valueChanges()))
+    .pipe(map(appUser => appUser.isAdmin));
+  }
+
+}
+
+```
+now in app module in path add in canActivate - in admin products and admin ordes
+[ AdminAuthGuard] authguard is for users who are logged in
+
+# Step 16 showing or hiding the admin links
+in navbar html
+open authservice here after logout write get and then cut template from adminauthguard service and
+paste here
+```
+logout() {
+    this.afAuth.auth.signOut();
+  }
+
+get appUser$(): Observable<AppUser> {
+    console.log('[auth-service]');
+
+    // @ts-ignore
+    return this.user$.pipe(switchMap((user) => {
+      
+      if (user) {
+        return this.userService.get(user.uid);
+      }
+      //return of(null);
+    }));
+  }
+
+}
+```
+ constructor(
+    private userService: UserService,
+    private afAuth: AngularFireAuth, 
+    private route: ActivatedRoute) { 
+    this.user$ = afAuth.authState;    
+  }
+
+  and in imports
+  mport { UserService } from './user.service';
+import { Observable, of } from 'rxjs';
+import { AngularFireAuth } from 'angularfire2/auth';
+import { Injectable } from '@angular/core';
+import * as firebase from 'firebase';
+import { ActivatedRoute } from '@angular/router';
+import { AppUser } from './models/app-user';
+import { switchMap } from 'rxjs/operators';
+
+now in admin auth guard service
+```
+canActivate(): Observable<boolean> {
+    return this.auth.appUser$
+   
+    .pipe(map(appUser => appUser.isAdmin));
+  }
+
+}
+```
+now in navbar html
+```
+ </ng-template>
+            <li ngbDropdown *ngIf="appUser$ ;else anonymousUser" class="nav-item dropdown">
+                <a ngbDropdownToggle class="nav-link dropdown-toggle" id="dropdown01" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+				{{ appUser.name}}
+				</a>
+                <div ngbDropdownMenu class="dropdown-menu" aria-labelledby="dropdown01">
+                    <a class="dropdown-item" routerLink="/my/orders">My Orders</a>
+                    <ng-container *ngIf="appUser.isAdmin">
+                    <a class="dropdown-item" routerLink="/admin/orders">Manage Orders</a>
+                    <a class="dropdown-item" routerLink="/admin/products">Manage Products</a>
+                     </ng-container>
+                    <a class="dropdown-item" (click)="logout()">Log Out</a>
+                    
+                </div>
+            </li>
+        </ul>
+```
+in navbar component
+```
+port class BsNavbarComponent {
+   appUser: AppUser;
+
+  constructor(private auth: AuthService) {
+    auth.appUser$.subscribe(appUser => this.appUser = appUser);
+    
+   }
+
+  logout() {
+    this.auth.logout();
+  }
+
+}
+```
+here we are not doing -fixing a bug chapter 20.13
+  
+
+
 
 
 

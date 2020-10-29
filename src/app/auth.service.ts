@@ -35,11 +35,11 @@ export class AuthService {
 
     // @ts-ignore
     return this.user$.pipe(switchMap((user) => {
-      console.log('--->', user);
+      
       if (user) {
         return this.userService.get(user.uid);
       }
-      return of(null);
+      //return of(null);
     }));
   }
 

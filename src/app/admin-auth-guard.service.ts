@@ -4,7 +4,7 @@ import { AuthService } from './auth.service';
 import { Injectable } from '@angular/core';
 import { CanActivate } from '@angular/router';
 
-import { map } from 'rxjs/operators';
+import { map, switchMap } from 'rxjs/operators';
 
 
 @Injectable()
@@ -14,6 +14,7 @@ export class AdminAuthGuard implements CanActivate {
 
   canActivate(): Observable<boolean> {
     return this.auth.appUser$
+   
     .pipe(map(appUser => appUser.isAdmin));
   }
 
